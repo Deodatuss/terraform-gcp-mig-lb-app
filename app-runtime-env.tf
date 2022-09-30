@@ -1,8 +1,8 @@
 ### 7 - template and MIG ###
 resource "google_compute_instance_template" "default" {
-  depends_on = [google_project_service.api_7_iam]
+  depends_on           = [google_project_service.api_6_iam]
   
-  name  = "${var.name}-php-app-template"
+  name                 = "${var.name}-php-app-template"
 
   instance_description = "instance template with startup script"
   machine_type         = var.instance_template_machine_type
@@ -15,15 +15,10 @@ resource "google_compute_instance_template" "default" {
     boot              = true
   }
   network_interface {
-    //network = google_compute_network.terr_vpc_1.id
     subnetwork = google_compute_subnetwork.terraform_sub_vpc_1.id
     access_config {
     network_tier = "STANDARD"
     }
-    # Gives Google error because is trying to constantly update non-updatable template
-    # ipv6_access_config {
-    #   network_tier = "STANDARD"
-    # }
   }
   service_account {
   email = google_service_account.custom_service_account_1.email
@@ -44,7 +39,7 @@ resource "google_compute_instance_template" "default" {
 }
 
 resource "google_compute_instance_group_manager" "appserver" {
-  depends_on = [google_project_service.api_7_iam]
+  depends_on          = [google_project_service.api_6_iam]
   
   name                = "${var.name}-terraform-custom-mig"
   base_instance_name  = "${var.name}-php-app-worker"
@@ -76,6 +71,7 @@ resource "google_compute_instance_group_manager" "appserver" {
 
 ### 8 - external HTTP load balancer with the MIG backend ###
 resource "google_compute_subnetwork" "terraform_proxy_vpc_1" {
+  depends_on    = [google_project_service.api_6_iam]
   name          = "${var.name}-proxy-vpc-1"
   ip_cidr_range = var.ip_proxy_range
   purpose       = "REGIONAL_MANAGED_PROXY"
@@ -84,6 +80,7 @@ resource "google_compute_subnetwork" "terraform_proxy_vpc_1" {
 }
 
 resource "google_compute_region_health_check" "default" {
+  depends_on    = [google_project_service.api_6_iam]
   name     = "${var.name}-mig-healhckeck"
   http_health_check {
     port_specification = "USE_SERVING_PORT"
@@ -114,6 +111,7 @@ resource "google_compute_region_target_http_proxy" "default" {
 }
 
 resource "google_compute_address" "default" {
+  depends_on   = [google_project_service.api_6_iam]
   name         = "${var.name}-website-public-ip-1"
   network_tier = "STANDARD"
 }
@@ -126,7 +124,7 @@ resource "google_compute_forwarding_rule" "terraform_lb_forward_rule" {
   port_range            = "80"
   target                = google_compute_region_target_http_proxy.default.id
   network               = google_compute_network.terraform_vpc_1.id
-  # if somrthing with lb doesn't work, it could be answer (but a last one, because it worked without subnet)
+  # if something with lb doesn't work, it could be answer (but a last one, because it worked without subnet)
   # subnetwork            = google_compute_subnetwork.terraform_sub_vpc_1.id
   ip_address            = google_compute_address.default.id
 

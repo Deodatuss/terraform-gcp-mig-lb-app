@@ -1,6 +1,6 @@
 ### 3 - service account ###
 resource "google_service_account" "custom_service_account_1" {
-  depends_on = [google_project_service.api_7_iam]
+  depends_on = [google_project_service.api_6_iam]
 
   account_id   = "${var.name}-service-account-1"
   display_name = "${var.name}-service-acc-for-connections"

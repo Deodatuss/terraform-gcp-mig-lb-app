@@ -1,5 +1,6 @@
 ### 1 - network - VPC ###
 resource "google_compute_network"  "terraform_vpc_1" {
+  depends_on              = [google_project_service.api_6_iam]
   name                    = "${var.name}-vpc-1"
   auto_create_subnetworks = false
 }
@@ -21,9 +22,7 @@ resource "google_compute_router" "terraform_router_1" {
   }
 }
 
-resource "google_compute_router_nat" "terraform_nat_1" {
-  depends_on                         = [google_project_service.api_7_iam]
-  
+resource "google_compute_router_nat" "terraform_nat_1" { 
   name                               = "${var.name}-nat-1"
   router                             = google_compute_router.terraform_router_1.name
   region                             = google_compute_router.terraform_router_1.region
