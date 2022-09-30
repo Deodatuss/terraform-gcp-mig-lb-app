@@ -1,0 +1,8 @@
+# install sql client
+sudo apt-get install default-mysql-client
+
+# now, because of vpc, u can use simple mysql command!
+mysql --host=10.0.0.0 --user=u --password=pp
+
+# or send script to db
+mysql --host=10.0.0.0 --user=u --password=pp php_mysql_crud < /var/www/html/database/script.sql
